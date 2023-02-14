@@ -7,8 +7,9 @@ Makes serializing safer and easier by encrypting your data with a custom passwor
     from encr import encr
     e = encr("Password")
 
-_encr_ takes two arguments:
+_encr_ takes three arguments:
 - _password_, the string that will be hashed and converted into a key for encryption
+- _lib_, the library/object used for serialization (read the "custom library" section for more info)
 - _clvl_, the compression level
 
 #### _dumps_ and _loads_
@@ -55,3 +56,14 @@ _dumpfile_ reads a file and serializes it's content. It takes two arguments:
 _loadfile_ reads a file and serializes it's content. It takes two arguments:
 - _file_, the file to be decrypted
 - _dest_, where your deserialized file is stored
+
+#### Custom _library_
+
+JSON can't serialize classes or functions. If you want to do that, you can choose your custom library or class to serialize the objects.
+
+When you create an _encr_ instance, pass the object/library as a keyword argument:
+
+    from encr import encr
+    e = encr("Password", lib=myobj)
+
+_myobj_ must be an object/library (like _pickle_ or _marshal_) with two methods: _dumps_ and _loads_
