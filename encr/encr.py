@@ -4,7 +4,7 @@ from cryptography.fernet import Fernet
 from zlib import compress, decompress
 import pickle
 from os import makedirs, walk
-from os.path import walk, dirname, join
+from os.path import dirname, join
 
 class encr:
     def __init__(self, password, lib=pickle, clvl=-1):
