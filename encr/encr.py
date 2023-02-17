@@ -2,10 +2,12 @@ from hashlib import sha512
 from base64 import urlsafe_b64encode
 from cryptography.fernet import Fernet
 from zlib import compress, decompress
-import json
+import pickle
+from os import makedirs, walk
+from os.path import walk, dirname, join
 
 class encr:
-    def __init__(self, password, lib=json, clvl=-1):
+    def __init__(self, password, lib=pickle, clvl=-1):
         """
         :param password: Password used to encrypt and decrypt the objects
         :type password: (str)
@@ -22,7 +24,7 @@ class encr:
     def dumps(self, obj):
         """
         :param obj: Object to serialize
-        :type obj: Any JSON serializable object; (dict) or (list) or (tuple) or (str) or (float) or (bool) or (None)...
+        :type obj: Any
         """
         return Fernet(self.key).encrypt(compress(self.lib.dumps(obj), level=self.clvl))
 
@@ -38,7 +40,7 @@ class encr:
     def dump(self, obj, file):
         """
         :param obj: Object to serialize
-        :type obj: Any JSON serializable object; (dict) or (list) or (tuple) or (str) or (float) or (bool) or (None)...
+        :type obj: Any
         :param file: File where the serialized object is saved
         :type file: (str)
         """
@@ -60,7 +62,7 @@ class encr:
         :param dest: Destination of encrypted file
         :type dest: (str)
         """
-        self.dump(open(file).read(), dest)
+        self.dump(open(file, 'rb').read(), dest)
     
     #Decrypt a file
     def loadfile(self, file, dest):
@@ -70,4 +72,30 @@ class encr:
         :param dest: Destination of decrypted file
         :type dest: (str)
         """
-        open(dest, "w").write(self.load(file))
+        open(dest, 'wb').write(self.load(file))
+    
+    #Encrypt a folder and turn it into a file
+    def dumptree(self, folder, dest):
+        """
+        :param folder: Folder to encrypt
+        :type folder: (str)
+        :param dest: Destination of encrypted folder
+        :type dest: (str)
+        """
+        data = dict()
+        for dir in walk(folder):
+            for file in dir[2]:
+                filepath = join(dir[0], file)
+                data[filepath] = open(filepath, 'rb').read()
+        self.dump(data, dest)
+    
+    #Decrypt a folder which was serialized with 'encr.dumptree'
+    def loadtree(self, file):
+        """
+        :param folder: File containing folder to decrypt
+        :type folder: (str)
+        """
+        data = self.load(file)
+        for file in data.keys():
+            makedirs(dirname(file), exist_ok=True)
+            open(file, 'wb').write(data[file])
