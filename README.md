@@ -1,23 +1,25 @@
 Makes serializing safer and easier by encrypting your data with a custom password (hashed and turned into a key)
+You can get a history of all added functionalities between updates in the *VERSION_HISTORY.md* file
 
 ## Usage
 
-#### Create an _encr_ instance
+#### Creating an _encr_ instance
 
     from encr import encr
     e = encr("Password")
 
-_encr_ takes three arguments:
+_encr_ takes two arguments:
 - _password_, the string that will be hashed and converted into a key for encryption
-- _lib_, the library/object used for serialization (read the "Custom _library_" section for more info)
 - _clvl_, the compression level
 
-#### _dumps_ and _loads_
+#### Encrypting and decrypting: _dumps_ and _loads_
 
     serialized_object = e.dumps("foobar")
+    print(serialized_object)
+  > b'gAAAAABj85Nfc5tnmOSwj_wlSvFUop-E5ifYmEQUa8n2Ld5cNw5mahzkA-OpBDA9ky21OJa7vcLfheRMKA4yJppp7_ot_bWyTJ9lU5-TXCaeSJO8hzy3T7Y='
     deserialized_object = e.loads(serialized_object)
     print(deserialized_object)
-  > "foobar"
+  > foobar
 
 _dumps_ serializes the object. It takes one argument:
 - _obj_, the object to be encrypted
@@ -25,7 +27,7 @@ _dumps_ serializes the object. It takes one argument:
 _loads_ deserializes the object. It takes one argument:
 - _obj_, the encrypted object to be deserialized
 
-#### _dump_ and _load_
+#### Saving a variable to a file: _dump_ and _load_
 
     e.dump("foobar", "file.encr")
     print(e.load("file.encr"))
@@ -38,11 +40,7 @@ _dump_ serializes the object and saves it in a file. It takes two arguments:
 _load_ takes a serialized object from a file and deserializes it. It takes one argument:
 - _file_, the file where the object is stored
 
-#### _dumpfile_ and _loadfile_
-
-##### MyFile.txt
-
-    foobar
+#### Encrypting a file: _dumpfile_ and _loadfile_
 
 ##### program.py
 
@@ -57,28 +55,29 @@ _loadfile_ reads a file and deserializes it's content. It takes two arguments:
 - _file_, the file to be decrypted
 - _dest_, where your deserialized file is stored
 
-#### _dumptree_ and _loadtree_
+#### Encrypting a folder: _dumptree_ and _loadtree_
 
-    e.dumpfile("MyFolder", "MyFile.encr")
-    e.loadfile("MyFile.encr")
+    e.dumptree("MyFolder", "MyFile.encr")
+    e.loadtree("MyFile.encr")
 
-_dumpfile_ reads all the files contained in a folder and in all it's subfolders and serializes both their content, name and position. It takes two arguments:
+_dumptree_ reads all the files contained in a folder and in all it's subfolders and serializes both their content, name and position. It takes two arguments:
 - _file_, the folder to be encrypted
 - _dest_, the file where your serialized folder is saved
 
-_loadfile_ reads a file and restores the serialized tree. It takes one argument:
+_loadtree_ reads a file and restores the serialized tree. It takes one argument:
 - _file_, the file containing the tree
 
-#### Custom _library_
+#### Changing the password: _setkey_
 
-When you create an _encr_ instance, pass a custom serialization object/library as a keyword argument:
+    e = encr("Password")
+    e.setkey("Password2")
 
-    from encr import encr
-    import json
-    e = encr("Password", lib=json)
+You can change the key used for encryption anytime with the _setkey_ method.
 
-_myobj_ must be an object/library (like _json_ or _marshal_) with two methods: _dumps_ and _loads_. _pickle_ is set by default
+#### Miscellaneous: _dumpfile_, _dumptree_ and _load_
 
-##### Attention:
-
-Some libraries, like _json_, can't encrypt objects of type _bytes_, which is required by the _dumpfile_, _loadfile_, _dumptree_ and _loadtree_ methods
+    e.dumptree("MyFolder", "MyData.encr")
+    print(e.load("MyData.encr")["MyFolder\\MyFile"].decode())
+  
+You can encrypt a file with _dumpfile_ or a tree with _dumptree_ and access it's content with _load_ without having to decrypt it.
+_dumpfile_ saves directly the file's contents in binary mode, _dumptree_ saves all the filepaths and the file's contents in a dictionary.
