@@ -3,13 +3,13 @@ from distutils.core import setup
 setup(
     name = "encr",
     packages = ["encr"],
-    version = "0.0.4",
+    version = "0.0.5",
     license = "gpl-3.0",
     description = "A small package for safe data serialization and encryption",
     author = "Silvio Amuntenci",
     author_email = "amuntenci.silvio@gmail.com",
     url = "https://github.com/Malasaur/encr",
-    download_url = "https://github.com/Malasaur/encr/archive/refs/tags/v0.0.4.tar.gz",
+    download_url = "https://github.com/Malasaur/encr/archive/refs/tags/v0.0.5.tar.gz",
     keywords = ["serialization", "encryption"],
     install_requires = ["cryptography"],
     classifiers = [
