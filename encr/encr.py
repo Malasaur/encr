@@ -2,23 +2,23 @@ from hashlib import sha512
 from base64 import urlsafe_b64encode
 from cryptography.fernet import Fernet
 from zlib import compress, decompress
-import pickle
+from pickle import dumps, loads
 from os import makedirs, walk
 from os.path import dirname, join
 
 class encr:
-    def __init__(self, password, lib=pickle, clvl=-1):
+    def __init__(self, password, clvl=-1):
         """
         :param password: Password used to encrypt and decrypt the objects
         :type password: (str)
-        :param lib: Library or object that will be used for serialization
-        :type lib: Any
         :param clvl: Object compression level passed to zlib.compress
         :type clvl: (int)
         """
-        self.key = urlsafe_b64encode(sha512(password.encode()).hexdigest()[:32].encode())
-        self.lib = lib
+        self.key = self.setkey(password)
         self.clvl = clvl
+
+    def setkey(self, password):
+        self.key = urlsafe_b64encode(sha512(password.encode()).hexdigest()[:32].encode())
     
     #Serialize a variable and return it's value
     def dumps(self, obj):
@@ -26,7 +26,7 @@ class encr:
         :param obj: Object to serialize
         :type obj: Any
         """
-        return Fernet(self.key).encrypt(compress(self.lib.dumps(obj), level=self.clvl))
+        return Fernet(self.key).encrypt(compress(dumps(obj), level=self.clvl))
 
     #Deserialize a variable and return it's value
     def loads(self, obj):
@@ -34,7 +34,7 @@ class encr:
         :param obj: Object to deserialize
         :type obj: (bytes)
         """
-        return self.lib.loads(decompress(Fernet(self.key).decrypt(obj)))
+        return loads(decompress(Fernet(self.key).decrypt(obj)))
     
     #Serialize a variable and save it in a file
     def dump(self, obj, file):
